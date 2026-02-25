@@ -32,20 +32,27 @@ A full-stack MERN application to simplify and digitize the college no-dues clear
 ## Project Structure
 
 ```text
-NoDuesManagementSystem/
-  backend/
-    config/
-    controller/
-    middleware/
-    models/
-    routes/
-    Server.js
-  frontend/
-    src/
-      Components/
-      app/
-      features/
-    index.html
+📦 NoDuesManagementSystem
+├── backend/
+│   ├── config/
+│   ├── controller/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── Server.js
+│   ├── package.json
+│   └── .env.example
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── features/
+│   │   └── Components/
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+├── .gitignore
+└── README.md
 ```
 
 ## Getting Started
