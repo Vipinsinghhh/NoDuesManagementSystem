@@ -20,6 +20,7 @@ const FacultySchema = new mongoose.Schema({
     contactNumber: { type: String },
     address: { type: String },
     photo: { type: String },
+    photoPublicId: { type: String },
     teachingDetails:{ type:[TeachingDetailSchema] , default: [] }
 }, { timestamps: true });
 

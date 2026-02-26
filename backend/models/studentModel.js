@@ -65,6 +65,12 @@ const StudentSchema = new mongoose.Schema({
         type: Date, 
         required: true
     },
+    photo: {
+        type: String
+    },
+    photoPublicId: {
+        type: String
+    },
     submissions: {
         type: Map,
         of: SubmissionSchema,

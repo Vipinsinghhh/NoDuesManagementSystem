@@ -1,5 +1,6 @@
 import { Router } from "express";
 import facultyController from "../controller/facultyController.js";
+import uploadImage from "../middleware/uploadImage.js";
 
 const FacultyRouter = Router();
 
@@ -13,7 +14,7 @@ FacultyRouter.delete("/delete/:id", facultyController.deleteUser);
 FacultyRouter.post("/:id/addTeachingDetail", facultyController.addTeachingDetail);
 FacultyRouter.get("/:id/getTeachingDetails", facultyController.getTeachingDetails);
 FacultyRouter.delete("/:id/deleteTeachingDetail/:detailId", facultyController.deleteTeachingDetail);
-FacultyRouter.put("/updatePhoto/:id", facultyController.updatePhoto);
+FacultyRouter.put("/updatePhoto/:id", uploadImage.single("photo"), facultyController.updatePhoto);
 
 FacultyRouter.get("/list", facultyController.getAllFaculty);
 FacultyRouter.get("/bySubject/:subject", facultyController.getFacultyBySubject);

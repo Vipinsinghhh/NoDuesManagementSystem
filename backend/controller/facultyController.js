@@ -2,6 +2,7 @@ import Faculty from "../models/facultyModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import { deleteImageByPublicId, uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 
 const facultyController = {
     register: async (req, res) => {
@@ -62,9 +63,9 @@ const facultyController = {
     
     updateUser: async (req, res) => {
         try {
-            const { firstName, lastName, password, department, experience, specialization, contactNumber, address, photo, teachingDetails } = req.body;
+            const { firstName, lastName, password, department, experience, specialization, contactNumber, address, teachingDetails } = req.body;
     
-            let updateData = { firstName, lastName, department, experience, specialization, contactNumber, address, photo, teachingDetails };
+            let updateData = { firstName, lastName, department, experience, specialization, contactNumber, address, teachingDetails };
     
             if (password) {
                 updateData.password = await bcrypt.hash(password, 10);
@@ -153,13 +154,28 @@ const facultyController = {
     updatePhoto: async (req, res) => {
         try {
             const { id } = req.params;
-            const { photo } = req.body;
-    
-            const faculty = await Faculty.findByIdAndUpdate(id, { photo }, { new: true }).select("-password");
+            const existingFaculty = await Faculty.findById(id);
+            if (!existingFaculty) return res.status(404).json({ error: "User not found" });
+            if (!req.file) return res.status(400).json({ error: "Photo file is required" });
+
+            const uploadedImage = await uploadImageBuffer(req.file, "no-dues/faculty");
+
+            if (existingFaculty.photoPublicId) {
+                await deleteImageByPublicId(existingFaculty.photoPublicId);
+            }
+
+            const faculty = await Faculty.findByIdAndUpdate(
+                id,
+                {
+                    photo: uploadedImage.url,
+                    photoPublicId: uploadedImage.publicId,
+                },
+                { new: true }
+            ).select("-password");
             
             if (!faculty) return res.status(404).json({ error: "User not found" });
     
-            res.json({ message: "Photo updated successfully", faculty });
+            res.json({ message: "Photo updated successfully", faculty, photo: uploadedImage.url });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

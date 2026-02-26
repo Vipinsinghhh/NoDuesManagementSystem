@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config"; 
 import Hod from "../models/hodModel.js";
+import { deleteImageByPublicId, uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 
 const hodController = {
     register: async (req, res) => {
@@ -124,13 +125,50 @@ const hodController = {
     },
     updateUser: async (req, res) => {
         try {
-            const updatedHod = await Hod.findByIdAndUpdate(req.params.id, req.body, { new: true }).select("-password");
+            const updatePayload = { ...req.body };
+            delete updatePayload.photo;
+            delete updatePayload.photoPublicId;
+
+            const updatedHod = await Hod.findByIdAndUpdate(req.params.id, updatePayload, { new: true }).select("-password");
             if (!updatedHod) return res.status(404).json({ error: "User not found" });
 
             res.json(updatedHod);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Server error" });
+        }
+    },
+    updatePhoto: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const existingHod = await Hod.findById(id);
+
+            if (!existingHod) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ error: "Photo file is required" });
+            }
+
+            const uploadedImage = await uploadImageBuffer(req.file, "no-dues/hod");
+
+            if (existingHod.photoPublicId) {
+                await deleteImageByPublicId(existingHod.photoPublicId);
+            }
+
+            const hod = await Hod.findByIdAndUpdate(
+                id,
+                {
+                    photo: uploadedImage.url,
+                    photoPublicId: uploadedImage.publicId,
+                },
+                { new: true }
+            ).select("-password");
+
+            return res.json({ message: "Photo updated successfully", hod, photo: uploadedImage.url });
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
         }
     },
     deleteUser: async (req, res) => {

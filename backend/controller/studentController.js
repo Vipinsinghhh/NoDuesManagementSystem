@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import StudentModel from "../models/studentModel.js";
+import { deleteImageByPublicId, uploadImageBuffer } from "../utils/cloudinaryUpload.js";
 
 const studentController = {
     register: async (req, res) => {
@@ -124,7 +125,11 @@ const studentController = {
 
     updateUser: async (req, res) => {
         try {
-            let updatedUser = await StudentModel.findByIdAndUpdate(req.params.id, req.body, { new: true }).select("-password");
+            const updatePayload = { ...req.body };
+            delete updatePayload.photo;
+            delete updatePayload.photoPublicId;
+
+            let updatedUser = await StudentModel.findByIdAndUpdate(req.params.id, updatePayload, { new: true }).select("-password");
             if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
             res.json(updatedUser);
@@ -214,6 +219,39 @@ const studentController = {
         } catch (error) {
             console.error("HOD approval update error:", error);
             return res.status(500).json({ success: false, message: "Server error while updating HOD approval status" });
+        }
+    },
+    updatePhoto: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const existingStudent = await StudentModel.findById(id);
+
+            if (!existingStudent) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ error: "Photo file is required" });
+            }
+
+            const uploadedImage = await uploadImageBuffer(req.file, "no-dues/student");
+
+            if (existingStudent.photoPublicId) {
+                await deleteImageByPublicId(existingStudent.photoPublicId);
+            }
+
+            const student = await StudentModel.findByIdAndUpdate(
+                id,
+                {
+                    photo: uploadedImage.url,
+                    photoPublicId: uploadedImage.publicId,
+                },
+                { new: true }
+            ).select("-password");
+
+            return res.json({ message: "Photo updated successfully", student, photo: uploadedImage.url });
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
         }
     },
     getStudentProfile: async (req, res) => {

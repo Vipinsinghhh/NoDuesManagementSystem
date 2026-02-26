@@ -32,6 +32,12 @@ const HodSchema = new mongoose.Schema({
         type: String,
         required: [true, "Phone number is required"],
         trim: true
+    },
+    photo: {
+        type: String
+    },
+    photoPublicId: {
+        type: String
     }
 }, { timestamps: true });
 
