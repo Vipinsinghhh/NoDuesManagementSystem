@@ -193,44 +193,46 @@ export default function CompleteFacultyProfile() {
         const file = e.target.files[0];
         if (file) {
             try {
-                const reader = new FileReader();
-                reader.onload = async () => {
-                    const base64Image = reader.result;
-                    
-                    setProfileData(prev => ({
-                        ...prev,
-                        photo: base64Image
-                    }));
-                    
-                    setCompletionStatus(prev => ({
-                        ...prev,
-                        photo: true
-                    }));
-                    
-                    try {
-                        const facultyDataString = localStorage.getItem('facultyData');
-                        if (!facultyDataString) {
-                            toast.error("Faculty data not found");
-                            return;
-                        }
-                        
-                        const facultyData = JSON.parse(facultyDataString);
-                        if (!facultyData || !facultyData._id) {
-                            toast.error("Invalid faculty data");
-                            return;
-                        }
-                        
-                        await axios.put(`${baseUrl}Faculty/updatePhoto/${facultyData._id}`, {
-                            photo: base64Image
-                        });
-    
-                        toast.success("Photo updated successfully!");
-                    } catch (error) {
-                        console.error("Error saving photo to backend:", error);
-                        toast.error("Failed to save photo. Please try again.");
+                const facultyDataString = localStorage.getItem('facultyData');
+                if (!facultyDataString) {
+                    toast.error("Faculty data not found");
+                    return;
+                }
+
+                const facultyData = JSON.parse(facultyDataString);
+                if (!facultyData || !facultyData._id) {
+                    toast.error("Invalid faculty data");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('photo', file);
+
+                const response = await axios.put(
+                    `${baseUrl}Faculty/updatePhoto/${facultyData._id}`,
+                    formData,
+                    {
+                        headers: { 'Content-Type': 'multipart/form-data' }
                     }
-                };
-                reader.readAsDataURL(file);
+                );
+
+                const uploadedPhotoUrl = response?.data?.photo || response?.data?.faculty?.photo;
+                if (!uploadedPhotoUrl) {
+                    toast.error("Photo upload failed. Invalid response from server.");
+                    return;
+                }
+
+                setProfileData(prev => ({
+                    ...prev,
+                    photo: uploadedPhotoUrl
+                }));
+
+                setCompletionStatus(prev => ({
+                    ...prev,
+                    photo: true
+                }));
+
+                toast.success("Photo updated successfully!");
             } catch (error) {
                 console.error("Error processing photo:", error);
                 toast.error("Failed to process photo. Please try again.");

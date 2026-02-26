@@ -28,6 +28,13 @@ const getProfileEndpoint = (baseUrl, userType, userId) => {
   return `${baseUrl}Student/profile/${userId}`;
 };
 
+const getPhotoUploadEndpoint = (baseUrl, userType, userId) => {
+  if (!baseUrl || !userId) return null;
+  if (userType === "faculty") return `${baseUrl}Faculty/updatePhoto/${userId}`;
+  if (userType === "hod") return `${baseUrl}Hod/updatePhoto/${userId}`;
+  return `${baseUrl}Student/updatePhoto/${userId}`;
+};
+
 const getUserMeta = (user, userType) => {
   return {
     id: user.rollNumber || user.employeeId || "N/A",
@@ -61,7 +68,48 @@ export default function Profile() {
       return null;
     }
   });
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const userId = user?._id || user?.id;
+
+  const handlePhotoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file || !userId) return;
+
+    const token = localStorage.getItem(getTokenKey(userType));
+    const endpoint = getPhotoUploadEndpoint(baseUrl, userType, userId);
+
+    if (!token || !endpoint) return;
+
+    setIsUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append("photo", file);
+
+      const response = await axios.put(endpoint, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const uploadedUrl =
+        response?.data?.photo ||
+        response?.data?.faculty?.photo ||
+        response?.data?.student?.photo ||
+        response?.data?.hod?.photo;
+
+      if (!uploadedUrl) return;
+
+      const updatedUser = { ...user, photo: uploadedUrl };
+      setUser(updatedUser);
+      localStorage.setItem(userKey, JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error("Photo upload failed:", error);
+    } finally {
+      setIsUploadingPhoto(false);
+      event.target.value = "";
+    }
+  };
 
   useEffect(() => {
     const fetchLatestProfile = async () => {
@@ -124,9 +172,17 @@ export default function Profile() {
           <div className="rounded-2xl bg-white/95 p-6 sm:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-2xl font-bold text-white">
-                  {initials}
-                </div>
+                {user?.photo ? (
+                  <img
+                    src={user.photo}
+                    alt="Profile"
+                    className="h-16 w-16 rounded-2xl object-cover border border-slate-200"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-2xl font-bold text-white">
+                    {initials}
+                  </div>
+                )}
                 <div>
                   <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
                   <p className="text-sm text-slate-600">{name}</p>
@@ -139,6 +195,16 @@ export default function Profile() {
                 <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
                   ID: {meta.id}
                 </span>
+                <label className="cursor-pointer rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                  {isUploadingPhoto ? "Uploading..." : "Upload Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                    disabled={isUploadingPhoto}
+                  />
+                </label>
               </div>
             </div>
           </div>
