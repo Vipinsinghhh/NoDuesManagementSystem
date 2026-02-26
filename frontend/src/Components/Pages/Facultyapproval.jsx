@@ -8,6 +8,7 @@ const FacultyApproval = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [facultyData, setFacultyData] = useState(null);
   const baseUrl = useSelector((state) => state.api.baseUrl); // ✅ get baseUrl from Redux
   
 
@@ -19,6 +20,7 @@ const FacultyApproval = () => {
         const facultyDataString = localStorage.getItem("facultyData");
         // Fix: Parse the JSON data and ensure it's an array
         const facultyData = JSON.parse(facultyDataString);
+        setFacultyData(facultyData);
         
         // Fix: Check if facultyData is an array, otherwise use an empty array
         const facultyArray = Array.isArray(facultyData) ? facultyData : [facultyData];
@@ -140,7 +142,7 @@ const FacultyApproval = () => {
     };
 
     fetchData();
-  }, [baseUrl]);
+  }, []);
 
   const handleStatusChange = async (submissionId, type, newStatus, buttonType) => {
     // Update the local state first

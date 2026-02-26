@@ -92,7 +92,7 @@ export default function CompleteFacultyProfile() {
         };
 
         fetchProfileData();
-    }, [baseUrl]);
+    }, [teachingDetails]);
 
     const handleTeachingInputChange = (e) => {
         const { name, value } = e.target;
@@ -319,6 +319,15 @@ export default function CompleteFacultyProfile() {
     // Section options
     const sectionOptions = ['A', 'B', 'C', 'D', 'E'];
     
+    // Handle profile data change
+    const handleProfileChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pt-20 pb-10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -568,6 +577,15 @@ export default function CompleteFacultyProfile() {
                                                                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
                                                                     >
                                                                         {subject}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleRemoveSubject(detail._id, subject)}
+                                                                            className="ml-1.5 text-indigo-600 hover:text-indigo-900"
+                                                                        >
+                                                                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                            </svg>
+                                                                        </button>
                                                                     </div>
                                                                 ))
                                                             ) : detail.subject ? (

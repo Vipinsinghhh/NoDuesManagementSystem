@@ -105,7 +105,7 @@ const StudentDashboard = () => {
     };
 
     fetchData();
-  }, [baseUrl]);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
