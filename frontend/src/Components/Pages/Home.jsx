@@ -8,21 +8,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="relative h-screen md:h-[600px] overflow-hidden">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center" 
-          style={{ backgroundImage: `url(${banner})` }}
-        ></div>
+      <div className="relative h-[70vh] min-h-[420px] sm:h-[75vh] md:h-[620px] overflow-hidden">
+        <img
+          src={banner}
+          alt="No Dues Management System"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          loading="eager"
+          decoding="async"
+        />
         <div className="absolute inset-0 bg-indigo-900/40"></div>
-        <div className="relative container mx-auto px-6 h-full flex flex-col justify-center items-start">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-md">
+        <div className="relative container mx-auto px-4 sm:px-6 h-full flex flex-col justify-center items-start">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-md">
             No Dues Management System
           </h1>
-          <p className="text-xl text-white max-w-2xl mb-8 drop-shadow-sm">
+          <p className="text-base sm:text-lg md:text-xl text-white max-w-2xl mb-8 drop-shadow-sm">
             Streamline your Dues clearance process with our easy-to-use No dues verification platform.
           </p>
           <button 
-            className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md transition-colors duration-300 flex items-center shadow-lg"
+            className="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-md transition-colors duration-300 flex items-center shadow-lg"
             onClick={() => navigate('/registerasstudent')}
           >
             <HomeIcon className="mr-2 h-5 w-5" />
