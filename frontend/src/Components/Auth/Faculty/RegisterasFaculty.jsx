@@ -125,20 +125,6 @@ export default function RegisterAsFaculty() {
     'Other'
   ];
 
-  // List of academic titles
-  const academicTitles = [
-    'Professor',
-    'Associate Professor',
-    'Assistant Professor',
-    'Lecturer',
-    'Adjunct Professor',
-    'Research Professor',
-    'Emeritus Professor',
-    'Visiting Professor',
-    'Instructor',
-    'Other'
-  ];
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <ToastContainer />

@@ -64,7 +64,7 @@ export default function Profile() {
     if (!rawData || rawData === "undefined") return null;
     try {
       return JSON.parse(rawData);
-    } catch (error) {
+    } catch {
       return null;
     }
   });
@@ -142,7 +142,7 @@ export default function Profile() {
     if (!user?.createdAt) return "N/A";
     try {
       return new Date(user.createdAt).toLocaleDateString();
-    } catch (error) {
+    } catch {
       return "N/A";
     }
   }, [user]);
